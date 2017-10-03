@@ -5,6 +5,12 @@
   <button class="btn">Add Comment</button>
 </div>
 
+<ul class="collection">
+  <li class="collection-item">
+    initial value
+  </li>
+</ul>
+
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     window.createSocket(<%= @topic.id %>);

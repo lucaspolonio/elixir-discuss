@@ -1,3 +1,5 @@
+require IEx
+
 defmodule Discuss.CommentsChannel do
   use Discuss.Web, :channel
 
@@ -10,7 +12,7 @@ defmodule Discuss.CommentsChannel do
     {:ok, %{}, assign(socket, :topic, topic)}
   end
 
-  def handle_in(name, %{"content" => content}, socket) do
+  def handle_in("comment:add", %{"content" => content}, socket) do
     topic = socket.assigns.topic
 
     changeset = topic
@@ -19,9 +21,14 @@ defmodule Discuss.CommentsChannel do
 
     case Repo.insert(changeset) do
       {:ok, comment} ->
+        broadcast!(socket, "new_comment", %{body: content})
         {:reply, :ok, socket}
       {:error, _reason} ->
         {:reply, {:error, %{errors: changeset}}, socket}
     end
+  end
+
+  def handle_in(name, %{"content" => content}, socket) do
+    {:reply, {:error, %{errors: "Operation not supported"}}, socket}
   end
 end

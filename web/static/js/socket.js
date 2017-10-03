@@ -52,19 +52,31 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // Or, remove it from the constructor if you don't care about
 // authentication.
 
-socket.connect()
+socket.connect();
+
+let messagesContainer = document.querySelector(".collection");
 
 const createSocket = (topicId) => {
-  let channel = socket.channel(`comments:${topicId}`, {})
+  window.channel = socket.channel(`comments:${topicId}`, {})
 
-  channel.join()
+  window.channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.log("Unable to join", resp) })
 
   document.querySelector("button").addEventListener("click", () => {
     const content = document.querySelector("textarea").value;
-    channel.push("comment:add", { content: content });
+    window.channel.push("comment:add", { content: content });
   });
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+  window.channel.on("new_comment", payload => {
+    let messageItem = document.createElement("li");
+    messageItem.setAttribute("class", "collection-item");
+    //messageItem.innerText = `[${Date()}] ${payload.body}`
+    messageItem.innerText = payload.body
+    messagesContainer.appendChild(messageItem);
+  })
+})
 
 window.createSocket = createSocket;
